@@ -1,31 +1,50 @@
-const {response} = require('express')
+const {response} = require('express');
+const bcryptjs = require('bcryptjs');
 
+const User = require('../models/user');
 
-const userGet = (req, res = response) => {
+const userGet = async(req, res = response) => {
+
+    const { limit = 5, start = 0 } = req.query;
+    const user = await User.find()
+        .skip(Number(start))
+        .limit(Number(limit));
+        
     res.json({
-        msg:'get API -Controller'
+        user
     });
 }
 
-const userPost = (req, res) => {
+const userPost = async (req, res) => {
 
-    const { nombre, edad } = req.body;
+    const {name, mail, password, role} = req.body;
+    const user = new User({name, mail, password, role});
+
+    const salt = bcryptjs.genSaltSync();
+    user.password = bcryptjs.hashSync(password, salt)
+
+    await user.save();
 
     res.json({
-        msg:'post API -Controller',
-        nombre,
-        edad,
+        user
     });
+
 }
 
-const userPut = (req, res) => {
+const userPut = async (req, res) => {
+    const {id} = req.params;
+    const { password, google, mail, ...resto } = req.body;
 
-    const { nombre, edad } = req.body;
+    if(password){
+        const salt = bcryptjs.genSaltSync();
+        resto.password = bcryptjs.hashSync(password, salt)
+    }
 
+    const user = await User.findByIdAndUpdate(id, resto);
+    
     res.json({
         msg:'put API -Controller',
-        nombre,
-        edad,
+        id
     });
 }
 
