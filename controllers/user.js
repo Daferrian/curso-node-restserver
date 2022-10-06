@@ -6,13 +6,24 @@ const User = require('../models/user');
 const userGet = async(req, res = response) => {
 
     const { limit = 5, start = 0 } = req.query;
-    const user = await User.find()
-        .skip(Number(start))
-        .limit(Number(limit));
+    const query = {estado: true}
+    
+    // const user = await User.find()
+    //     .skip(Number(start))
+    //     .limit(Number(limit));
+
+    const [total, usuario] = await Promise.all([
+        User.countDocuments(query),
+        User.find(query)
+            .skip(Number(start))
+            .limit(Number(limit))
+    ])
         
     res.json({
-        user
+        total,
+        usuario,
     });
+
 }
 
 const userPost = async (req, res) => {
@@ -32,6 +43,7 @@ const userPost = async (req, res) => {
 }
 
 const userPut = async (req, res) => {
+
     const {id} = req.params;
     const { password, google, mail, ...resto } = req.body;
 
@@ -46,6 +58,7 @@ const userPut = async (req, res) => {
         msg:'put API -Controller',
         id
     });
+
 }
 
 const userPatch = (req, res) => {
@@ -59,15 +72,13 @@ const userPatch = (req, res) => {
     });
 }
 
-const userDelete = (req, res) => {
+const userDelete = async(req, res) => {
 
-    const { nombre, edad } = req.body;
+    const { id } = req.params;
 
-    res.json({
-        msg:'delete API -Controller',
-        nombre,
-        edad,
-    });
+    const user = await User.findByIdAndUpdate( id, { estado: false });
+
+    res.json(user);
 }
 
 module.exports = {
