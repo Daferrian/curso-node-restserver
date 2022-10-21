@@ -26,7 +26,7 @@ const userGet = async(req, res = response) => {
 
 }
 
-const userPost = async (req, res) => {
+const userPost = async (req, res = response) => {
 
     const {name, mail, password, role} = req.body;
     const user = new User({name, mail, password, role});
@@ -42,7 +42,7 @@ const userPost = async (req, res) => {
 
 }
 
-const userPut = async (req, res) => {
+const userPut = async (req, res = response) => {
 
     const {id} = req.params;
     const { password, google, mail, ...resto } = req.body;
@@ -61,7 +61,7 @@ const userPut = async (req, res) => {
 
 }
 
-const userPatch = (req, res) => {
+const userPatch = (req, res = response) => {
 
     const { nombre, edad } = req.body;
 
@@ -72,13 +72,16 @@ const userPatch = (req, res) => {
     });
 }
 
-const userDelete = async(req, res) => {
+const userDelete = async(req, res = response) => {
 
     const { id } = req.params;
 
-    const user = await User.findByIdAndUpdate( id, { estado: false });
-
-    res.json(user);
+    const u = await User.findByIdAndUpdate( id, { estado: false });
+    
+    res.json({
+        u
+    });
+    
 }
 
 module.exports = {
